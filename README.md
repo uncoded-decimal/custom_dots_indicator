@@ -6,7 +6,9 @@ This package provides a Dots Indicator of which the developer can customise anyt
 2. Provide a Label and customise it
 3. Customise each Dot/Label for the curretn scroll index and by the Dot index
 
-Note: Currently, only supports the use of a `ScrollController` for your scrollable views.
+Note: Currently, only supports the use of a `ScrollController` for your scrollable views. You can also use `PageController` here because it is an instance of `ScrollController`.
+
+To learn more about the why's and the how's of this package, see this [article](https://uncoded-decimal.medium.com/custom-scroll-dots-indicator-f3a8a0e0b1fb).
 
 <img src="./screenshots/screenshot.png" alt="screenshot" height="500"/>
 
