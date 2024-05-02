@@ -255,19 +255,24 @@ class _CustomDotsIndicatorState extends State<CustomDotsIndicator> {
         );
       }
     }
+
+    /// to provide distances between dots
+    final List<Widget> transformedRow = [];
+    for (int index = 0; index < rowChildren.length - 1; index++) {
+      transformedRow
+        ..add(rowChildren.elementAt(index))
+        ..add(
+          SizedBox(
+            width: widget.dotsDistance,
+          ),
+        );
+    }
+    transformedRow.add(rowChildren.last);
+
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       crossAxisAlignment: CrossAxisAlignment.center,
-      children: rowChildren
-          .map(
-            (dot) => Padding(
-              padding: EdgeInsets.only(
-                right: widget.dotsDistance,
-              ),
-              child: dot,
-            ),
-          )
-          .toList(),
+      children: transformedRow,
     );
   }
 }

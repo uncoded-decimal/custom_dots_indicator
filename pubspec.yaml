@@ -1,7 +1,7 @@
 name: custom_dots_indicator
 description: "A highly customisable Dots Page Indicator."
 version: 1.0.0
-homepage:
+homepage: https://github.com/uncoded-decimal/custom_dots_indicator
 
 environment:
   sdk: ">=3.3.4 <4.0.0"
