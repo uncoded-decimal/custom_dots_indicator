@@ -50,6 +50,22 @@ class CustomDotsIndicator extends StatefulWidget {
   ///
   /// @param dotIndex is the index of the dot
   final Widget Function(int currentIndex, int dotIndex)? unselectedDotBuilder;
+
+  /// Allows for providing custom spacing between the dots.
+  /// Starts with [dotIndex] = 0
+  final double Function(int dotIndex)? customDotSpaceBuilder;
+
+  /// Duration for which your [customDotsTransition] lasts
+  final Duration animationDuration;
+
+  /// Duration for which your [customDotsTransition] reverses
+  final Duration reverseAnimationDuration;
+
+  /// Specify your own transition if needed
+  ///
+  /// Note: Does not apply when using [CustomDotsIndicator.custom]
+  final CustomDotsTransition? customDotsTransition;
+
   final bool _withLabel;
 
   /// Creates the default Dots Indicator
@@ -67,6 +83,10 @@ class CustomDotsIndicator extends StatefulWidget {
     this.inactiveDotRadius = 4,
     this.activeDotColor,
     this.inactiveDotColor,
+    this.animationDuration = const Duration(milliseconds: 200),
+    this.reverseAnimationDuration = Duration.zero,
+    this.customDotsTransition,
+    this.customDotSpaceBuilder,
   })  : assert(dotsCount <= listLength),
         _withLabel = false,
         labelStyle = null,
@@ -93,6 +113,10 @@ class CustomDotsIndicator extends StatefulWidget {
     this.inactiveDotColor,
     this.labelStyle,
     this.selectedLabelBuilder,
+    this.animationDuration = const Duration(milliseconds: 200),
+    this.reverseAnimationDuration = Duration.zero,
+    this.customDotsTransition,
+    this.customDotSpaceBuilder,
   })  : assert(dotsCount <= listLength),
         _withLabel = true,
         unselectedDotBuilder = null;
@@ -116,6 +140,10 @@ class CustomDotsIndicator extends StatefulWidget {
     this.inactiveDotColor,
     this.selectedLabelBuilder,
     this.unselectedDotBuilder,
+    this.animationDuration = const Duration(milliseconds: 200),
+    this.reverseAnimationDuration = Duration.zero,
+    this.customDotsTransition,
+    this.customDotSpaceBuilder,
   })  : assert(dotsCount <= listLength),
         _withLabel = true,
         labelStyle = null;
@@ -192,6 +220,9 @@ class _CustomDotsIndicatorState extends State<CustomDotsIndicator> {
                   Theme.of(context).unselectedWidgetColor,
               selectedLabelBuilder: widget.selectedLabelBuilder,
               unselectedDotBuilder: widget.unselectedDotBuilder,
+              animationDuration: widget.animationDuration,
+              reverseAnimationDuration: widget.reverseAnimationDuration,
+              customDotsTransition: widget.customDotsTransition,
             ),
           );
           continue;
@@ -213,6 +244,9 @@ class _CustomDotsIndicatorState extends State<CustomDotsIndicator> {
                 Theme.of(context).unselectedWidgetColor,
             selectedLabelBuilder: widget.selectedLabelBuilder,
             unselectedDotBuilder: widget.unselectedDotBuilder,
+            animationDuration: widget.animationDuration,
+            reverseAnimationDuration: widget.reverseAnimationDuration,
+            customDotsTransition: widget.customDotsTransition,
           ),
         );
       }
@@ -234,6 +268,9 @@ class _CustomDotsIndicatorState extends State<CustomDotsIndicator> {
               Theme.of(context).unselectedWidgetColor,
           selectedLabelBuilder: widget.selectedLabelBuilder,
           unselectedDotBuilder: widget.unselectedDotBuilder,
+          animationDuration: widget.animationDuration,
+          reverseAnimationDuration: widget.reverseAnimationDuration,
+          customDotsTransition: null, // Needs null to draw widget on boot up
         ),
       );
       for (int dotIndex = 2; dotIndex <= widget.dotsCount; dotIndex++) {
@@ -254,6 +291,9 @@ class _CustomDotsIndicatorState extends State<CustomDotsIndicator> {
                 Theme.of(context).unselectedWidgetColor,
             selectedLabelBuilder: widget.selectedLabelBuilder,
             unselectedDotBuilder: widget.unselectedDotBuilder,
+            animationDuration: widget.animationDuration,
+            reverseAnimationDuration: widget.reverseAnimationDuration,
+            customDotsTransition: null, // Needs null to draw widget on boot up
           ),
         );
       }
@@ -262,13 +302,20 @@ class _CustomDotsIndicatorState extends State<CustomDotsIndicator> {
     /// to provide distances between dots
     final List<Widget> transformedRow = [];
     for (int index = 0; index < rowChildren.length - 1; index++) {
-      transformedRow
-        ..add(rowChildren.elementAt(index))
-        ..add(
+      transformedRow.add(rowChildren.elementAt(index));
+      if (widget.customDotSpaceBuilder != null) {
+        transformedRow.add(
+          SizedBox(
+            width: widget.customDotSpaceBuilder!(index),
+          ),
+        );
+      } else {
+        transformedRow.add(
           SizedBox(
             width: widget.dotsDistance,
           ),
         );
+      }
     }
     transformedRow.add(rowChildren.last);
 
@@ -279,6 +326,9 @@ class _CustomDotsIndicatorState extends State<CustomDotsIndicator> {
     );
   }
 }
+
+typedef CustomDotsTransition = Widget Function(
+    Widget child, Animation<double> animation);
 
 class _IndicatorDot extends StatelessWidget {
   final int currentIndex;
@@ -291,6 +341,9 @@ class _IndicatorDot extends StatelessWidget {
   final TextStyle labelStyle;
   final Widget Function(int currentIndex, int dotIndex)? selectedLabelBuilder;
   final Widget Function(int currentIndex, int dotIndex)? unselectedDotBuilder;
+  final Duration animationDuration;
+  final Duration reverseAnimationDuration;
+  final CustomDotsTransition? customDotsTransition;
 
   const _IndicatorDot({
     required this.currentIndex,
@@ -306,12 +359,15 @@ class _IndicatorDot extends StatelessWidget {
     required this.unselectedDotBuilder,
     required this.activeDotColor,
     required this.inactiveDotColor,
+    required this.animationDuration,
+    required this.reverseAnimationDuration,
+    required this.customDotsTransition,
   });
 
   @override
   Widget build(BuildContext context) {
     final isInRange = currentIndex >= rangeStart && currentIndex <= rangeEnd;
-    return isInRange
+    final dot = isInRange
         ? labelForActiveDot
             ? selectedLabelBuilder != null
                 ? selectedLabelBuilder!(currentIndex, dotIndex)
@@ -330,6 +386,14 @@ class _IndicatorDot extends StatelessWidget {
                 dotRadius: inactiveDotRadius,
                 inactiveDotColor: inactiveDotColor,
               );
+    return customDotsTransition == null
+        ? dot
+        : AnimatedSwitcher(
+            duration: animationDuration,
+            reverseDuration: reverseAnimationDuration,
+            transitionBuilder: customDotsTransition!,
+            child: dot,
+          );
   }
 }
 

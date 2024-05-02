@@ -70,6 +70,8 @@ class _CustomDotsIndicatorExampleState
                   CustomDotsIndicator(
                     listLength: itemCount,
                     controller: _scrollController,
+                    dotsCount: itemCount ~/ 2,
+                    activeDotRadius: 8,
                   ),
                   const Divider(),
                   const Text("withLabel default"),
@@ -77,6 +79,11 @@ class _CustomDotsIndicatorExampleState
                     listLength: itemCount,
                     controller: _scrollController,
                     dotsCount: 3,
+                    customDotsTransition: (child, animation) => AnimatedOpacity(
+                      duration: Duration.zero,
+                      opacity: animation.value,
+                      child: child,
+                    ),
                   ),
                   const Text("withLabel selectedLabelBuilder"),
                   CustomDotsIndicator.withLabel(
@@ -96,6 +103,11 @@ class _CustomDotsIndicatorExampleState
                           color: Colors.white,
                         ),
                       ),
+                    ),
+                    animationDuration: const Duration(milliseconds: 200),
+                    customDotsTransition: (child, animation) => Transform.scale(
+                      scaleY: animation.value,
+                      child: child,
                     ),
                   ),
                   const Divider(),

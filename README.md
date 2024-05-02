@@ -4,13 +4,13 @@ This package provides a Dots Indicator of which the developer can customise anyt
 
 1. Number of Dots
 2. Provide a Label and customise it
-3. Customise each Dot/Label for the curretn scroll index and by the Dot index
+3. Customise each Dot/Label for the current scroll index and by the Dot index
 
 Note: Currently, only supports the use of a `ScrollController` for your scrollable views. You can also use `PageController` here because it is an instance of `ScrollController`.
 
 To learn more about the why's and the how's of this package, see this [article](https://uncoded-decimal.medium.com/custom-scroll-dots-indicator-f3a8a0e0b1fb).
 
-<img src="./screenshots/screenshot.png" alt="screenshot" height="500"/>
+<img src="./screenshots/animation.gif" alt="screenshot" height="500"/>
 
 ## Usage
 
@@ -77,6 +77,14 @@ You can start using this package by simply calling:
 6. **inactiveDotRadius**
 
    The color to be used for each of the _inactive_ dots.
+
+7. **customDotSpaceBuilder**
+
+   Helps customise the space between the dots.
+
+8. **customDotsTransition**
+
+   Animation to use for building the active/inactive dots.
 
 ### Customisation
 
