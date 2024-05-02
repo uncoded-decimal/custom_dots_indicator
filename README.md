@@ -8,7 +8,7 @@ This package provides a Dots Indicator of which the developer can customise anyt
 
 Note: Currently, only supports the use of a `ScrollController` for your scrollable views.
 
-<img src="./screenshots/screenshot.png" alt="screenshot" height="300"/>
+<img src="./screenshots/screenshot.png" alt="screenshot" height="500"/>
 
 ## Usage
 

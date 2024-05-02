@@ -67,7 +67,8 @@ class CustomDotsIndicator extends StatefulWidget {
     this.inactiveDotRadius = 4,
     this.activeDotColor,
     this.inactiveDotColor,
-  })  : _withLabel = false,
+  })  : assert(dotsCount <= listLength),
+        _withLabel = false,
         labelStyle = null,
         selectedLabelBuilder = null,
         unselectedDotBuilder = null;
@@ -92,7 +93,8 @@ class CustomDotsIndicator extends StatefulWidget {
     this.inactiveDotColor,
     this.labelStyle,
     this.selectedLabelBuilder,
-  })  : _withLabel = true,
+  })  : assert(dotsCount <= listLength),
+        _withLabel = true,
         unselectedDotBuilder = null;
 
   /// Allows for complete customisation of active and inactive dots.
@@ -114,7 +116,8 @@ class CustomDotsIndicator extends StatefulWidget {
     this.inactiveDotColor,
     this.selectedLabelBuilder,
     this.unselectedDotBuilder,
-  })  : _withLabel = true,
+  })  : assert(dotsCount <= listLength),
+        _withLabel = true,
         labelStyle = null;
 
   @override
