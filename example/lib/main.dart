@@ -73,61 +73,61 @@ class _CustomDotsIndicatorExampleState
                     dotsCount: itemCount ~/ 2,
                     activeDotRadius: 8,
                   ),
-                  const Divider(),
-                  const Text("withLabel default"),
-                  CustomDotsIndicator.withLabel(
-                    listLength: itemCount,
-                    controller: _scrollController,
-                    dotsCount: 3,
-                    customDotsTransition: (child, animation) => AnimatedOpacity(
-                      duration: Duration.zero,
-                      opacity: animation.value,
-                      child: child,
-                    ),
-                  ),
-                  const Text("withLabel selectedLabelBuilder"),
-                  CustomDotsIndicator.withLabel(
-                    listLength: itemCount,
-                    controller: _scrollController,
-                    dotsCount: 4,
-                    inactiveDotRadius: 6,
-                    selectedLabelBuilder: (currentIndex, dotIndex) => Container(
-                      padding: const EdgeInsets.all(8),
-                      decoration: const BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: Color(0xff112151),
-                      ),
-                      child: Text(
-                        dotIndex.toString(),
-                        style: const TextStyle(
-                          color: Colors.white,
-                        ),
-                      ),
-                    ),
-                    animationDuration: const Duration(milliseconds: 200),
-                    customDotsTransition: (child, animation) => Transform.scale(
-                      scaleY: animation.value,
-                      child: child,
-                    ),
-                  ),
-                  const Divider(),
-                  const Text("custom"),
-                  CustomDotsIndicator.custom(
-                    listLength: itemCount,
-                    controller: _scrollController,
-                    dotsCount: 5,
-                    dotsDistance: 4,
-                    selectedLabelBuilder: (currentIndex, dotIndex) => Icon(
-                      Icons.star,
-                      size: 32,
-                      color: Color(0xff333444 + 20000 * currentIndex),
-                    ),
-                    unselectedDotBuilder: (currentIndex, dotIndex) => Icon(
-                      Icons.star_border,
-                      size: 16,
-                      color: Color(0xff337282 + 9000 * dotIndex),
-                    ),
-                  ),
+                  // const Divider(),
+                  // const Text("withLabel default"),
+                  // CustomDotsIndicator.withLabel(
+                  //   listLength: itemCount,
+                  //   controller: _scrollController,
+                  //   dotsCount: 3,
+                  //   customDotsTransition: (child, animation) => AnimatedOpacity(
+                  //     duration: Duration.zero,
+                  //     opacity: animation.value,
+                  //     child: child,
+                  //   ),
+                  // ),
+                  // const Text("withLabel selectedLabelBuilder"),
+                  // CustomDotsIndicator.withLabel(
+                  //   listLength: itemCount,
+                  //   controller: _scrollController,
+                  //   dotsCount: 4,
+                  //   inactiveDotRadius: 6,
+                  //   selectedLabelBuilder: (currentIndex, dotIndex) => Container(
+                  //     padding: const EdgeInsets.all(8),
+                  //     decoration: const BoxDecoration(
+                  //       shape: BoxShape.circle,
+                  //       color: Color(0xff112151),
+                  //     ),
+                  //     child: Text(
+                  //       dotIndex.toString(),
+                  //       style: const TextStyle(
+                  //         color: Colors.white,
+                  //       ),
+                  //     ),
+                  //   ),
+                  //   animationDuration: const Duration(milliseconds: 200),
+                  //   customDotsTransition: (child, animation) => Transform.scale(
+                  //     scaleY: animation.value,
+                  //     child: child,
+                  //   ),
+                  // ),
+                  // const Divider(),
+                  // const Text("custom"),
+                  // CustomDotsIndicator.custom(
+                  //   listLength: itemCount,
+                  //   controller: _scrollController,
+                  //   dotsCount: 5,
+                  //   dotsDistance: 4,
+                  //   selectedLabelBuilder: (currentIndex, dotIndex) => Icon(
+                  //     Icons.star,
+                  //     size: 32,
+                  //     color: Color(0xff333444 + 20000 * currentIndex),
+                  //   ),
+                  //   unselectedDotBuilder: (currentIndex, dotIndex) => Icon(
+                  //     Icons.star_border,
+                  //     size: 16,
+                  //     color: Color(0xff337282 + 9000 * dotIndex),
+                  //   ),
+                  // ),
                 ]
                     .map((e) => Padding(
                           padding: const EdgeInsets.all(8),

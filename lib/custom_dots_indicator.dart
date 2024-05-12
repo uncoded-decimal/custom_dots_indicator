@@ -1,5 +1,7 @@
 library custom_dots_indicator;
 
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 
 class CustomDotsIndicator extends StatefulWidget {
@@ -154,6 +156,9 @@ class CustomDotsIndicator extends StatefulWidget {
 
 class _CustomDotsIndicatorState extends State<CustomDotsIndicator> {
   bool isScrollControllerAttached = false;
+  final LabeledGlobalKey _indicatorKey =
+      LabeledGlobalKey("custom_dots_indicator");
+
   final TextStyle _defaultLabelStyle = const TextStyle(
     fontSize: 10,
     color: Colors.white,
@@ -319,11 +324,57 @@ class _CustomDotsIndicatorState extends State<CustomDotsIndicator> {
     }
     transformedRow.add(rowChildren.last);
 
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: transformedRow,
+    return GestureDetector(
+      onHorizontalDragUpdate: _onDragDetected,
+      child: Row(
+        key: _indicatorKey,
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: transformedRow,
+      ),
     );
+  }
+
+  void _onDragDetected(DragUpdateDetails details) {
+    final currentScrollIndex = widget.controller.offset;
+    double totalScrollExtent = widget.controller.position.maxScrollExtent;
+    if (totalScrollExtent == 0) {
+      /// `maxScrollExtent` may be `0` if there isn't any element beyond the
+      /// scroll viewport. Giving it a small number, i.e., making it `1`
+      /// helps by avoiding the Null conditions
+      totalScrollExtent++;
+    }
+    final itemExtent = totalScrollExtent / (widget.listLength);
+    final indicatorSize = _indicatorKey.currentContext?.size;
+    final currentItemIndex = (currentScrollIndex ~/ itemExtent) + 1;
+    if (indicatorSize != null) {
+      final indicatorWidth = indicatorSize.width;
+      final widthPerItem = indicatorWidth / widget.listLength;
+
+      final dragDelta = details.delta.dx;
+      int chilrenDraggedBy = (dragDelta * widthPerItem / 30).round().abs();
+      int projectedIndex = currentItemIndex;
+      if (dragDelta < 0) {
+        debugPrint("Dragging backwards");
+        projectedIndex = currentItemIndex - chilrenDraggedBy;
+      } else if (dragDelta > 0) {
+        debugPrint("Dragging forwards");
+        projectedIndex = currentItemIndex + chilrenDraggedBy;
+      } else {
+        debugPrint("Drag delta 0");
+        return;
+      }
+      projectedIndex = projectedIndex.clamp(0, widget.listLength);
+      debugPrint(
+          "currentItemIndex = $currentItemIndex for chilrenDraggedBy = $chilrenDraggedBy");
+      debugPrint("projectedIndex = $projectedIndex for dragDelta = $dragDelta");
+
+      //TODO: add autoscroll permission
+      final scrollOffsetToScrollTo = projectedIndex * itemExtent;
+      widget.controller.jumpTo(scrollOffsetToScrollTo);
+    } else {
+      log("Drag attempted without a RenderBox");
+    }
   }
 }
 
