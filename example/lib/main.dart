@@ -14,7 +14,8 @@ class CustomDotsIndicatorExample extends StatefulWidget {
 
   @override
   State<CustomDotsIndicatorExample> createState() =>
-      _CustomDotsIndicatorExampleState();
+      // _CustomDotsIndicatorExampleState();
+      _TabCustomDotsExampleState();
 }
 
 class _CustomDotsIndicatorExampleState
@@ -140,5 +141,70 @@ class _CustomDotsIndicatorExampleState
         ),
       ),
     );
+  }
+}
+
+class _TabCustomDotsExampleState extends State<CustomDotsIndicatorExample>
+    with SingleTickerProviderStateMixin {
+  late TabController _tabController;
+  final int tabCount = 10;
+
+  @override
+  void initState() {
+    _tabController = TabController(length: tabCount, vsync: this);
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: SafeArea(
+        child: Column(
+          children: [
+            Expanded(
+              child: TabBarView(
+                controller: _tabController,
+                children: [
+                  for (int i = 0; i < tabCount; i++)
+                    Container(
+                      decoration: BoxDecoration(
+                        color: Color(0xff000000 + i * 5000),
+                      ),
+                      alignment: Alignment.center,
+                      child: Text(
+                        "Item ${i + 1}",
+                        style: const TextStyle(
+                          fontSize: 24,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 10),
+            CustomDotsIndicator.withTabs(
+              tabController: _tabController,
+            ),
+            const SizedBox(height: 10),
+            CustomDotsIndicator.withTabs(
+              tabController: _tabController,
+              dotsCount: 7,
+              showLabel: true,
+              selectedLabelBuilder: (currentIndex, dotIndex) => Icon(
+                Icons.color_lens,
+                color: Color(0xff111111 - 200 * currentIndex),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
   }
 }

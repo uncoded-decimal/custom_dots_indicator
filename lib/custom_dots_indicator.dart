@@ -5,11 +5,13 @@ import 'package:flutter/material.dart';
 class CustomDotsIndicator extends StatefulWidget {
   /// Length of the list for which the [CustomDotsIndicator]
   /// is to be used.
-  final int listLength;
+  final int? listLength;
 
   /// The [ScrollController] provided to the list for which
   /// the [CustomDotsIndicator] is to be used.
-  final ScrollController controller;
+  final ScrollController? controller;
+
+  final TabController? tabController;
 
   /// Amount of dots to use for the indicator. Defaults to 3.
   final int dotsCount;
@@ -87,11 +89,13 @@ class CustomDotsIndicator extends StatefulWidget {
     this.reverseAnimationDuration = Duration.zero,
     this.customDotsTransition,
     this.customDotSpaceBuilder,
-  })  : assert(dotsCount <= listLength),
+  })  : assert(listLength != null),
+        assert(dotsCount <= (listLength ?? 0)),
         _withLabel = false,
         labelStyle = null,
         selectedLabelBuilder = null,
-        unselectedDotBuilder = null;
+        unselectedDotBuilder = null,
+        tabController = null;
 
   /// Creates the Dots indicator with the default label widget. Also
   /// allows for customising the label widget through the
@@ -117,9 +121,11 @@ class CustomDotsIndicator extends StatefulWidget {
     this.reverseAnimationDuration = Duration.zero,
     this.customDotsTransition,
     this.customDotSpaceBuilder,
-  })  : assert(dotsCount <= listLength),
+  })  : assert(listLength != null),
+        assert(dotsCount <= (listLength ?? 0)),
         _withLabel = true,
-        unselectedDotBuilder = null;
+        unselectedDotBuilder = null,
+        tabController = null;
 
   /// Allows for complete customisation of active and inactive dots.
   ///
@@ -144,9 +150,34 @@ class CustomDotsIndicator extends StatefulWidget {
     this.reverseAnimationDuration = Duration.zero,
     this.customDotsTransition,
     this.customDotSpaceBuilder,
-  })  : assert(dotsCount <= listLength),
+  })  : assert(listLength != null),
+        assert(dotsCount <= (listLength ?? 0)),
         _withLabel = true,
-        labelStyle = null;
+        labelStyle = null,
+        tabController = null;
+
+  CustomDotsIndicator.withTabs({
+    super.key,
+    required this.tabController,
+    this.labelStyle,
+    this.dotsCount = 3,
+    this.dotsDistance = 16,
+    this.activeDotRadius = 4,
+    this.inactiveDotRadius = 4,
+    this.activeDotColor,
+    this.inactiveDotColor,
+    this.selectedLabelBuilder,
+    this.unselectedDotBuilder,
+    this.animationDuration = const Duration(milliseconds: 200),
+    this.reverseAnimationDuration = Duration.zero,
+    this.customDotsTransition,
+    this.customDotSpaceBuilder,
+    bool showLabel = false,
+  })  : assert(dotsCount <= tabController!.length),
+        assert(dotsCount.isOdd), //TODO: investigate
+        _withLabel = showLabel,
+        listLength = null,
+        controller = null;
 
   @override
   State<CustomDotsIndicator> createState() => _CustomDotsIndicatorState();
@@ -162,141 +193,42 @@ class _CustomDotsIndicatorState extends State<CustomDotsIndicator> {
   @override
   void initState() {
     super.initState();
-    widget.controller.addListener(onListen);
+    if (widget.controller != null) {
+      widget.controller!.addListener(onScrollListener);
+    }
+    if (widget.tabController != null) {
+      widget.tabController!.addListener(onTabListener);
+    }
   }
 
   @override
   void dispose() {
-    widget.controller.removeListener(onListen);
+    if (widget.controller != null) {
+      widget.controller!.removeListener(onScrollListener);
+    }
+    if (widget.tabController != null) {
+      widget.tabController!.removeListener(onTabListener);
+    }
     super.dispose();
   }
 
-  void onListen() {
+  void onScrollListener() {
     setState(() {
-      isScrollControllerAttached = widget.controller.hasClients;
+      isScrollControllerAttached = widget.controller!.hasClients;
     });
   }
+
+  void onTabListener() => setState(() {});
 
   @override
   Widget build(BuildContext context) {
     final List<Widget> rowChildren = [];
-    if (isScrollControllerAttached) {
-      final currentScrollIndex = widget.controller.offset;
-      double totalScrollExtent = widget.controller.position.maxScrollExtent;
-      if (totalScrollExtent == 0) {
-        /// `maxScrollExtent` may be `0` if there isn't any element beyond the
-        /// scroll viewport. Giving it a small number, i.e., making it `1`
-        /// helps by avoiding the Null conditions
-        totalScrollExtent++;
-      }
-      final itemExtent = totalScrollExtent / (widget.listLength);
-      final currentIndex = (currentScrollIndex ~/ itemExtent) + 1;
-
-      /// [range] helps determine the min and max index in which
-      /// the dot must be set to active
-      int range = widget.listLength ~/ widget.dotsCount;
-      for (int dotIndex = 1; dotIndex <= widget.dotsCount; dotIndex++) {
-        int rangeStart = 1 + range * (dotIndex - 1);
-        int rangeEnd = (dotIndex == widget.dotsCount)
-            ? widget.listLength
-            : dotIndex * range;
-        if (currentIndex > widget.listLength) {
-          /// check whether the current index is for the widget at the list end
-          /// which will very likely be the fetch button or the shimmer
-          rowChildren.add(
-            _IndicatorDot(
-              currentIndex: currentIndex - 1,
-              dotIndex: dotIndex,
-              total: widget.listLength,
-              rangeStart: rangeStart,
-              rangeEnd: rangeEnd,
-              labelForActiveDot: widget._withLabel,
-              labelStyle: widget.labelStyle ?? _defaultLabelStyle,
-              activeDotRadius: widget.activeDotRadius,
-              inactiveDotRadius: widget.inactiveDotRadius,
-              activeDotColor:
-                  widget.activeDotColor ?? Theme.of(context).primaryColor,
-              inactiveDotColor: widget.inactiveDotColor ??
-                  Theme.of(context).unselectedWidgetColor,
-              selectedLabelBuilder: widget.selectedLabelBuilder,
-              unselectedDotBuilder: widget.unselectedDotBuilder,
-              animationDuration: widget.animationDuration,
-              reverseAnimationDuration: widget.reverseAnimationDuration,
-              customDotsTransition: widget.customDotsTransition,
-            ),
-          );
-          continue;
-        }
-        rowChildren.add(
-          _IndicatorDot(
-            currentIndex: currentIndex,
-            dotIndex: dotIndex,
-            total: widget.listLength,
-            rangeStart: rangeStart,
-            rangeEnd: rangeEnd,
-            labelForActiveDot: widget._withLabel,
-            labelStyle: widget.labelStyle ?? _defaultLabelStyle,
-            activeDotRadius: widget.activeDotRadius,
-            inactiveDotRadius: widget.inactiveDotRadius,
-            activeDotColor:
-                widget.activeDotColor ?? Theme.of(context).primaryColor,
-            inactiveDotColor: widget.inactiveDotColor ??
-                Theme.of(context).unselectedWidgetColor,
-            selectedLabelBuilder: widget.selectedLabelBuilder,
-            unselectedDotBuilder: widget.unselectedDotBuilder,
-            animationDuration: widget.animationDuration,
-            reverseAnimationDuration: widget.reverseAnimationDuration,
-            customDotsTransition: widget.customDotsTransition,
-          ),
-        );
-      }
+    if (isScrollControllerAttached && widget.controller != null) {
+      rowChildren.addAll(_onScrollControllerLayout());
+    } else if (widget.tabController != null) {
+      rowChildren.addAll(_onTabControllerLayout());
     } else {
-      rowChildren.add(
-        _IndicatorDot(
-          currentIndex: 1,
-          dotIndex: 1,
-          total: widget.listLength,
-          rangeStart: 1,
-          rangeEnd: 1,
-          labelForActiveDot: widget._withLabel,
-          labelStyle: widget.labelStyle ?? _defaultLabelStyle,
-          activeDotRadius: widget.activeDotRadius,
-          inactiveDotRadius: widget.inactiveDotRadius,
-          activeDotColor:
-              widget.activeDotColor ?? Theme.of(context).primaryColor,
-          inactiveDotColor: widget.inactiveDotColor ??
-              Theme.of(context).unselectedWidgetColor,
-          selectedLabelBuilder: widget.selectedLabelBuilder,
-          unselectedDotBuilder: widget.unselectedDotBuilder,
-          animationDuration: widget.animationDuration,
-          reverseAnimationDuration: widget.reverseAnimationDuration,
-          customDotsTransition: null, // Needs null to draw widget on boot up
-        ),
-      );
-      for (int dotIndex = 2; dotIndex <= widget.dotsCount; dotIndex++) {
-        rowChildren.add(
-          _IndicatorDot(
-            currentIndex: 1,
-            dotIndex: dotIndex,
-            total: widget.listLength,
-            rangeStart: 2,
-            rangeEnd: 2,
-            labelForActiveDot: widget._withLabel,
-            labelStyle: widget.labelStyle ?? _defaultLabelStyle,
-            activeDotRadius: widget.activeDotRadius,
-            inactiveDotRadius: widget.inactiveDotRadius,
-            activeDotColor:
-                widget.activeDotColor ?? Theme.of(context).primaryColor,
-            inactiveDotColor: widget.inactiveDotColor ??
-                Theme.of(context).unselectedWidgetColor,
-            selectedLabelBuilder: widget.selectedLabelBuilder,
-            unselectedDotBuilder: widget.unselectedDotBuilder,
-            animationDuration: widget.animationDuration,
-            reverseAnimationDuration: widget.reverseAnimationDuration,
-            customDotsTransition: null, // Needs null to draw widget on boot up
-          ),
-        );
-      }
+      rowChildren.addAll(_getDefaultDotsLayout());
     }
 
     /// to provide distances between dots
@@ -324,6 +256,206 @@ class _CustomDotsIndicatorState extends State<CustomDotsIndicator> {
       crossAxisAlignment: CrossAxisAlignment.center,
       children: transformedRow,
     );
+  }
+
+  List<Widget> _getDefaultDotsLayout() {
+    final List<Widget> dots = [];
+    dots.add(
+      _IndicatorDot(
+        currentIndex: 1,
+        dotIndex: 1,
+        total: widget.listLength ?? widget.tabController?.length ?? 0,
+        rangeStart: 0,
+        rangeEnd: 1,
+        labelForActiveDot: widget._withLabel,
+        labelStyle: widget.labelStyle ?? _defaultLabelStyle,
+        activeDotRadius: widget.activeDotRadius,
+        inactiveDotRadius: widget.inactiveDotRadius,
+        activeDotColor: widget.activeDotColor ?? Theme.of(context).primaryColor,
+        inactiveDotColor:
+            widget.inactiveDotColor ?? Theme.of(context).unselectedWidgetColor,
+        selectedLabelBuilder: widget.selectedLabelBuilder,
+        unselectedDotBuilder: widget.unselectedDotBuilder,
+        animationDuration: widget.animationDuration,
+        reverseAnimationDuration: widget.reverseAnimationDuration,
+        customDotsTransition: null, // Needs null to draw widget on boot up
+      ),
+    );
+    for (int dotIndex = 2; dotIndex <= widget.dotsCount; dotIndex++) {
+      dots.add(
+        _IndicatorDot(
+          currentIndex: 0,
+          dotIndex: dotIndex,
+          total: widget.listLength ?? widget.tabController?.length ?? 0,
+          rangeStart: 1,
+          rangeEnd: 2,
+          labelForActiveDot: widget._withLabel,
+          labelStyle: widget.labelStyle ?? _defaultLabelStyle,
+          activeDotRadius: widget.activeDotRadius,
+          inactiveDotRadius: widget.inactiveDotRadius,
+          activeDotColor:
+              widget.activeDotColor ?? Theme.of(context).primaryColor,
+          inactiveDotColor: widget.inactiveDotColor ??
+              Theme.of(context).unselectedWidgetColor,
+          selectedLabelBuilder: widget.selectedLabelBuilder,
+          unselectedDotBuilder: widget.unselectedDotBuilder,
+          animationDuration: widget.animationDuration,
+          reverseAnimationDuration: widget.reverseAnimationDuration,
+          customDotsTransition: null, // Needs null to draw widget on boot up
+        ),
+      );
+    }
+    return dots;
+  }
+
+  List<Widget> _onScrollControllerLayout() {
+    final currentScrollIndex = widget.controller!.offset;
+    double totalScrollExtent = widget.controller!.position.maxScrollExtent;
+    if (totalScrollExtent == 0) {
+      /// `maxScrollExtent` may be `0` if there isn't any element beyond the
+      /// scroll viewport. Giving it a small number, i.e., making it `1`
+      /// helps by avoiding the Null conditions
+      totalScrollExtent++;
+    }
+    final itemExtent = totalScrollExtent / widget.listLength!;
+    final currentIndex = (currentScrollIndex ~/ itemExtent) + 1;
+
+    /// [range] helps determine the min and max index in which
+    /// the dot must be set to active
+    int range = widget.listLength! ~/ widget.dotsCount;
+
+    List<Widget> dots = [];
+    for (int dotIndex = 1; dotIndex <= widget.dotsCount; dotIndex++) {
+      int rangeStart = 1 + range * (dotIndex - 1);
+      int rangeEnd = (dotIndex == widget.dotsCount)
+          ? widget.listLength!
+          : dotIndex * range;
+      if (currentIndex > widget.listLength!) {
+        /// check whether the current index is for the widget at the list end
+        /// which will very likely be the fetch button or the shimmer
+        dots.add(
+          _IndicatorDot(
+            currentIndex: currentIndex - 1,
+            dotIndex: dotIndex,
+            total: widget.listLength!,
+            rangeStart: rangeStart,
+            rangeEnd: rangeEnd,
+            labelForActiveDot: widget._withLabel,
+            labelStyle: widget.labelStyle ?? _defaultLabelStyle,
+            activeDotRadius: widget.activeDotRadius,
+            inactiveDotRadius: widget.inactiveDotRadius,
+            activeDotColor:
+                widget.activeDotColor ?? Theme.of(context).primaryColor,
+            inactiveDotColor: widget.inactiveDotColor ??
+                Theme.of(context).unselectedWidgetColor,
+            selectedLabelBuilder: widget.selectedLabelBuilder,
+            unselectedDotBuilder: widget.unselectedDotBuilder,
+            animationDuration: widget.animationDuration,
+            reverseAnimationDuration: widget.reverseAnimationDuration,
+            customDotsTransition: widget.customDotsTransition,
+          ),
+        );
+        continue;
+      }
+      dots.add(
+        _IndicatorDot(
+          currentIndex: currentIndex,
+          dotIndex: dotIndex,
+          total: widget.listLength!,
+          rangeStart: rangeStart,
+          rangeEnd: rangeEnd,
+          labelForActiveDot: widget._withLabel,
+          labelStyle: widget.labelStyle ?? _defaultLabelStyle,
+          activeDotRadius: widget.activeDotRadius,
+          inactiveDotRadius: widget.inactiveDotRadius,
+          activeDotColor:
+              widget.activeDotColor ?? Theme.of(context).primaryColor,
+          inactiveDotColor: widget.inactiveDotColor ??
+              Theme.of(context).unselectedWidgetColor,
+          selectedLabelBuilder: widget.selectedLabelBuilder,
+          unselectedDotBuilder: widget.unselectedDotBuilder,
+          animationDuration: widget.animationDuration,
+          reverseAnimationDuration: widget.reverseAnimationDuration,
+          customDotsTransition: widget.customDotsTransition,
+        ),
+      );
+    }
+    return dots;
+  }
+
+  List<Widget> _onTabControllerLayout() {
+    /// `+1` because dots count starts at 1
+    final currentIndex = widget.tabController!.index + 1;
+
+    final totalItems = widget.tabController!.length;
+
+    /// [range] helps determine the min and max index in which
+    /// the dot must be set to active
+    double range = totalItems / widget.dotsCount;
+    List<Widget> dots = [];
+    for (int dotIndex = 1; dotIndex <= widget.dotsCount; dotIndex++) {
+      int rangDelta = 0;
+      if (dotIndex.isEven) {
+        rangDelta = range.ceil();
+      } else {
+        rangDelta = range.floor();
+      }
+      int rangeStart = 1 + rangDelta * (dotIndex - 1);
+      int rangeEnd = (dotIndex == widget.dotsCount)
+          ? widget.tabController!.length
+          : dotIndex * rangDelta;
+
+      if (currentIndex >= totalItems) {
+        /// check whether the current index is for the widget at the list end
+        /// which will very likely be the fetch button or the shimmer
+        dots.add(
+          _IndicatorDot(
+            currentIndex: currentIndex,
+            dotIndex: dotIndex,
+            total: totalItems,
+            rangeStart: rangeStart,
+            rangeEnd: rangeEnd,
+            labelForActiveDot: widget._withLabel,
+            labelStyle: widget.labelStyle ?? _defaultLabelStyle,
+            activeDotRadius: widget.activeDotRadius,
+            inactiveDotRadius: widget.inactiveDotRadius,
+            activeDotColor:
+                widget.activeDotColor ?? Theme.of(context).primaryColor,
+            inactiveDotColor: widget.inactiveDotColor ??
+                Theme.of(context).unselectedWidgetColor,
+            selectedLabelBuilder: widget.selectedLabelBuilder,
+            unselectedDotBuilder: widget.unselectedDotBuilder,
+            animationDuration: widget.animationDuration,
+            reverseAnimationDuration: widget.reverseAnimationDuration,
+            customDotsTransition: widget.customDotsTransition,
+          ),
+        );
+        continue;
+      }
+      dots.add(
+        _IndicatorDot(
+          currentIndex: currentIndex,
+          dotIndex: dotIndex,
+          total: totalItems,
+          rangeStart: rangeStart,
+          rangeEnd: rangeEnd,
+          labelForActiveDot: widget._withLabel,
+          labelStyle: widget.labelStyle ?? _defaultLabelStyle,
+          activeDotRadius: widget.activeDotRadius,
+          inactiveDotRadius: widget.inactiveDotRadius,
+          activeDotColor:
+              widget.activeDotColor ?? Theme.of(context).primaryColor,
+          inactiveDotColor: widget.inactiveDotColor ??
+              Theme.of(context).unselectedWidgetColor,
+          selectedLabelBuilder: widget.selectedLabelBuilder,
+          unselectedDotBuilder: widget.unselectedDotBuilder,
+          animationDuration: widget.animationDuration,
+          reverseAnimationDuration: widget.reverseAnimationDuration,
+          customDotsTransition: widget.customDotsTransition,
+        ),
+      );
+    }
+    return dots;
   }
 }
 
