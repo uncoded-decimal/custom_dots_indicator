@@ -10,7 +10,7 @@ Note: Currently, only supports the use of a `ScrollController` for your scrollab
 
 To learn more about the why's and the how's of this package, see this [article](https://uncoded-decimal.medium.com/custom-scroll-dots-indicator-f3a8a0e0b1fb).
 
-<img src="./screenshots/animation.gif" alt="screenshot" height="500"/>
+<img src="https://github.com/uncoded-decimal/custom_dots_indicator/blob/12d633fbcc3984e6233dce38dfe836d045394ca0/screenshots/animation.gif" alt="screenshot" height="500"/>
 
 ## Usage
 
