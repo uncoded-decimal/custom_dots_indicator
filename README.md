@@ -101,7 +101,7 @@ You can start using this package by simply calling:
    1. **`currentIndex`**: the calculated visible item on the screen,
    2. **`dotIndex`**: the position of the current dot.
 
-   <img src="./screenshots/default_label.png" alt="default label" height="150"/>
+   <img src="https://github.com/uncoded-decimal/custom_dots_indicator/blob/502c57828baa4ee7567fd1b1e10bdcddec3b40e7/screenshots/default_label.png" alt="default label" height="150"/>
 
 `CustomDotsIndicator.custom` offers one more optional parameter _with_ the above listed two:
 
