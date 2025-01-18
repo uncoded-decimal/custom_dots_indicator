@@ -1,6 +1,6 @@
 name: custom_dots_indicator
 description: "A highly customisable dots page Indicator. Allows for customisation of dots and label."
-version: 1.0.1
+version: 1.0.2
 homepage: https://github.com/uncoded-decimal/custom_dots_indicator
 
 environment:

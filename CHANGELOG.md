@@ -1,3 +1,7 @@
+## 1.0.2
+
+- Documentation updated
+
 ## 1.0.1
 
 - Count assertions added

@@ -10,7 +10,7 @@ Note: Currently, only supports the use of a `ScrollController` for your scrollab
 
 To learn more about the why's and the how's of this package, see this [article](https://uncoded-decimal.medium.com/custom-scroll-dots-indicator-f3a8a0e0b1fb).
 
-<img src="https://github.com/uncoded-decimal/custom_dots_indicator/blob/12d633fbcc3984e6233dce38dfe836d045394ca0/screenshots/animation.gif" alt="screenshot" height="500"/>
+<img src="https://raw.githubusercontent.com/uncoded-decimal/custom_dots_indicator/12d633fbcc3984e6233dce38dfe836d045394ca0/screenshots/animation.gif" alt="screenshot" height="500"/>
 
 ## Usage
 
@@ -101,10 +101,16 @@ You can start using this package by simply calling:
    1. **`currentIndex`**: the calculated visible item on the screen,
    2. **`dotIndex`**: the position of the current dot.
 
-   <img src="https://github.com/uncoded-decimal/custom_dots_indicator/blob/502c57828baa4ee7567fd1b1e10bdcddec3b40e7/screenshots/default_label.png" alt="default label" height="150"/>
+<img src="https://raw.githubusercontent.com/uncoded-decimal/custom_dots_indicator/502c57828baa4ee7567fd1b1e10bdcddec3b40e7/screenshots/default_label.png" alt="default label" height="120"/>
+
+---
 
 `CustomDotsIndicator.custom` offers one more optional parameter _with_ the above listed two:
 
 1. `unselectedDotBuilder`
 
    This helps bring the inactive dots under customisation. Much like the `selectedLabelBuilder`, it takes the same two variables but uses them to render the _inactive_ dots.
+
+---
+
+Please feel free to request updates based on your requirements, I'll make changes as I get to them.
